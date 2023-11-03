@@ -10,3 +10,8 @@ Feel free to explore the projects and code samples. Contributions, suggestions, 
     - 🤖 Automated process to log into the college website, download subject grades, save as PDF, and email it.
     - 📊 Utilized Python and Selenium for seamless automation and interaction with web content.
     - 📧 Integrated email sending to automatically deliver the generated PDF report.
+ 
+- **Project 2**: [Simple Encrypt Decrypt](https://github.com/Murali2602/Projects/blob/main/simple_encrypt_decrypt/main.cpp)
+    - 🔒 Developed a basic encryption and decryption program using C++.
+    - 🔑 Implemented a straightforward method to encrypt text, ensuring its confidentiality.
+    - 🔍 Included a corresponding decryption function to retrieve the original information.
