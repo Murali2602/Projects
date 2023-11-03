@@ -6,7 +6,7 @@ This is a simple C++ program that takes user input for file name and then encryp
 
 Linux: `g++ main.cpp -o main`
 
-Windows (from Linux): `x86_64-w64-mingw32-g++ -o main.exe main.cpp`
+Windows (from Linux): `x86_64-w64-mingw32-g++ -static -o main.exe main.cpp`
 
 **Run**
 
