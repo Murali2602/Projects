@@ -1,0 +1,1559 @@
+{
+  "name": "Cybersecurity Jobs",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1296,
+        -768
+      ],
+      "id": "3633222d-27d7-4cf6-9be0-a95311b6d1e6",
+      "name": "When clicking \u2018Execute workflow\u2019"
+    },
+    {
+      "parameters": {
+        "content": "Get Original and Draft Resume",
+        "height": 320,
+        "width": 784,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1344,
+        -880
+      ],
+      "typeVersion": 1,
+      "id": "e78d9ff2-3b3c-4a22-b11d-86d067640ade",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3000/scrape-jobs",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"searchUrl\": \"https://www.linkedin.com/jobs/search?keywords=YOUR_SEARCH_KEYWORDS&location=YOUR_LOCATION&f_TPR=r604800&f_JT=F\",\n  \"targetCount\": 100\n}\n",
+        "options": {
+          "timeout": 120000000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        720,
+        -752
+      ],
+      "id": "c885b294-9924-42bb-993b-9b3a783bd430",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "content": "Find Daily Job Postings",
+        "height": 240,
+        "width": 352,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        592,
+        -832
+      ],
+      "typeVersion": 1,
+      "id": "ac1f6111-4ebb-49ab-bc9e-8bd5a22b7034",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1632,
+        -144
+      ],
+      "id": "122a5fd2-60b7-4da7-bcb6-ff73fccce56f",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Your googlePalmApi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        1600,
+        96
+      ],
+      "id": "e38495e9-8b2c-4cd6-a4e8-ebd9d96ba41c",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"comapny_name\": \"string\",\n\t\"job_description\": \"string\",\n    \"job_title\": \"string\",\n    \"rating\": \"number\",\n    \"justificiation\": \"string\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -1392,
+        -144
+      ],
+      "id": "1b88908d-7a43-4ea1-9a86-a4e49688e673",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f890505d-bc10-4a14-a161-4a567a497d6e",
+              "leftValue": "={{ $json.output.rating.toNumber() }}",
+              "rightValue": 65,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1168,
+        240
+      ],
+      "id": "a7119724-2ce7-428c-bc83-32bedfcb7a4a",
+      "name": "45% or Higher Qualification",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $('Copy file').item.json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "replaceAll",
+              "text": "{Summary}",
+              "replaceText": "={{ $json.summary }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{Skills}",
+              "replaceText": "={{ $('Format All Content').item.json.skills }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        -848,
+        848
+      ],
+      "id": "a82da0cb-6ad2-4227-9858-1d458c624904",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Your googleDocsOAuth2Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"summary\": \"string\",\n\t\"skills\": [\n\t\t{\n\t\t\t\"category\": \"string\",\n\t\t\t\"items\": \"string\"\n\t\t}\n\t]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1712,
+        224
+      ],
+      "id": "acbd8fb7-db8b-41ba-8027-4d49cbb54cbc",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "documentURL": "YOUR_DOCUMENT_ID"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        -720,
+        -768
+      ],
+      "id": "68ddbfa7-a370-40dd-8644-3b74b211e638",
+      "name": "Get Main Resume",
+      "executeOnce": false,
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Your googleDocsOAuth2Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "documentURL": "YOUR_DOCUMENT_ID"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        -1024,
+        -848
+      ],
+      "id": "88dd5e98-4653-45aa-b2b7-1090137ec75c",
+      "name": "Get N8N Draft Resume",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Your googleDocsOAuth2Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": {
+          "__rl": true,
+          "value": "=1RRIkuJv4ZtAagWzp_rBgykeUukSSPvL4B8dat9hJVCQ",
+          "mode": "id"
+        },
+        "name": "={{ $('45% or Higher Qualification').item.json.output.comapny_name }}_Resume",
+        "sameFolder": false,
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1248,
+        -272
+      ],
+      "id": "59871130-606f-4057-a458-06153c6f5780",
+      "name": "Copy file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Job Title: {{ $('45% or Higher Qualification').item.json.output.job_title }}\nJob Posting Description: {{ $('45% or Higher Qualification').item.json.output.job_description }}\nCandidate's Original Resume: {{ $('Get Main Resume').first().json.content }}\nAI Justification: {{ $('45% or Higher Qualification').item.json.output.justificiation }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an elite resume optimization specialist with expertise in ATS (Applicant Tracking System) optimization and IT/cybersecurity hiring practices.\n\nCANDIDATE'S COMPLETE SKILL INVENTORY (MasterSkills):\n\n{{ JSON.stringify($node[\"Format MasterSkills\"].json[\"MasterSkills\"]) }}\n\nEach category contains skills with:\n- \"skill\": the tool, process, or capability\n- \"level\": basic, intermediate, or advanced proficiency\n- \"evidence\": where the skill was gained (homelab, co-op, college, certification, personal project)\n\nThe candidate does NOT have extensive prior professional IT experience\u2014most hands-on expertise comes from self-study, homelab projects, co-op work, and college coursework.\n\n***\n\nCONTEXT:\nYou will receive:\n1. An original resume with the candidate's authentic experience, skills, and achievements\n2. A specific job posting with requirements and keywords\n3. MasterSkills\u2014the candidate's complete, verified skill inventory with proficiency levels and evidence\n\nYOUR MISSION:\nStrategically enhance ONLY the Summary and Skills sections to maximize alignment with the job posting while maintaining authenticity and ATS compatibility.\n\n---\n\nHere is the information from the job posting and company:\n\nCompany Name: {{ $('45% or Higher Qualification').item.json.output.comapny_name }}\n\nJob Description: {{ $('45% or Higher Qualification').item.json.output.job_description }}\n\nCandidate Resume: {{ $('Get Main Resume').first().json.content }}\n\n---\n\n***\n\nSUMMARY SECTION REQUIREMENTS:\n- Write a compelling 3-4 sentence professional summary\n- Lead with the candidate's hands-on experience (from homelab, co-op, projects) and primary expertise area (e.g., SOC operations, IT support, security operations, systems administration)\n- Incorporate 7-10 high-priority keywords from the job posting naturally, focusing on exact tool names, certifications, and core competencies, prioritizing skills marked as \"advanced\" or \"intermediate\" in MasterSkills\n- Highlight 2-3 measurable achievements or unique qualifications that match the role\n- Use phrases like \"through homelab projects,\" \"in lab environments,\" \"during co-op,\" or \"via self-directed learning\" to accurately represent the candidate's background\n- Use active, confident language (avoid \"passionate about\" or \"seeking to\")\n- Use concise, action-oriented phrasing (e.g., \"Configured,\" \"Deployed,\" \"Monitored,\" \"Automated,\" \"Analyzed\")\n- Keep it concise: 60-90 words maximum\n\n***\n\nSKILLS SECTION REQUIREMENTS:\n- Analyze the job posting thoroughly and create 3-5 relevant skill categories based on what the role emphasizes (use 4 for most jobs, 5 for hybrid IT/Security roles)\n- When naming categories, mirror the job posting's language wherever possible (e.g., if the job mentions \"Threat Detection & Response,\" use that exact phrase as a category name if relevant skills exist in MasterSkills)\n- Category names should be professional, concise (2-4 words), and align with the job posting language (e.g., \"Security Operations & SIEM\", \"Networking & Infrastructure\", \"Automation & Scripting\", \"Cloud & Identity Management\")\n- COMPREHENSIVE COVERAGE: Include ALL relevant skills from MasterSkills that match the job requirements\n- Each category should contain 6-12 skills depending on relevance and job posting complexity\n- Prioritize concrete tools, platforms, and technologies over abstract concepts (e.g., list \"Security Onion, Wazuh, Splunk\" before \"Incident response processes\")\n- Prioritize exact job description keywords FIRST (tools, technologies, platforms, certifications), followed by supporting skills from MasterSkills\n- Only include skills the candidate actually possesses\u2014every skill MUST come from MasterSkills\n- Prioritize \"advanced\" and \"intermediate\" level skills over \"basic\" ones unless the job specifically requires them\n- Use proper capitalization for technologies (e.g., \"AWS\" not \"aws\", \"Python\" not \"python\", \"Active Directory\" not \"active directory\")\n- Format as comma-separated lists within each category\n- MAXIMIZE ATS SCORE: Include as many relevant keywords from the job posting as authentically possible, but never fabricate skills\n\n***\n\nCRITICAL RULES:\n1. Output PLAIN TEXT ONLY - no markdown, no asterisks, no formatting symbols\n2. Do NOT fabricate experience or skills\u2014everything must come from MasterSkills or the resume\n3. Do NOT include any code blocks, backticks, or \"```\"\n4. Do NOT add headings like \"Summary:\" or \"Skills:\" - just provide the content\n5. Keep content concise but comprehensive\n6. Match the tone and seniority level of the original resume (entry-level to junior)\n7. Attribute technical work accurately: use \"homelab,\" \"co-op,\" \"lab environments,\" or \"self-directed projects\"\u2014do NOT imply the candidate held prior IT jobs unless stated in the resume\n8. Use evidence context from MasterSkills to write honest, compelling summaries\n\n---\n\nOUTPUT FORMAT - CRITICAL:\nReturn ONLY a valid JSON object with this exact structure:\n{\n  \"summary\": \"your 3-4 sentence professional summary as a single string\",\n  \"skills\": [\n    {\n      \"category\": \"dynamically determined category name based on job posting (2-4 words, professional)\",\n      \"items\": \"skill1, skill2, skill3, skill4, skill5, skill6, skill7, skill8, skill9, skill10, skill11, skill12, ...\"\n    },\n    {\n      \"category\": \"another relevant category name\",\n      \"items\": \"skill1, skill2, skill3, skill4, skill5, skill6, skill7, skill8, skill9, skill10, ...\"\n    },\n    {\n      \"category\": \"third category name\",\n      \"items\": \"skill1, skill2, skill3, skill4, skill5, skill6, skill7, skill8, ...\"\n    },\n    {\n      \"category\": \"fourth category name (if needed)\",\n      \"items\": \"skill1, skill2, skill3, skill4, skill5, skill6, ...\"\n    }\n  ]\n}\n\n---\n\nNow analyze the job posting, resume, and MasterSkills, then output the optimized Summary and Skills sections in JSON format.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1504,
+        432
+      ],
+      "id": "8cdf50eb-85ff-44f7-8a21-d6d8ced52015",
+      "name": "Summary & Skills Agent",
+      "retryOnFail": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get outputs from both agents\nconst summarySkillsData = $('Summary & Skills Agent').first().json.output;\n\n// Format skills with ALL CAPS category on separate line, indented items\nconst formattedSkills = summarySkillsData.skills.map(skillGroup => {\n  return `\u2022 ${skillGroup.category.toUpperCase()}\\n  ${skillGroup.items}`;\n}).join('\\n');\n\n\n// Return the formatted output\nreturn [{\n  json: {\n    summary: summarySkillsData.summary,\n    skills: formattedSkills\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2176,
+        432
+      ],
+      "id": "319cfb2c-7046-4a11-bb92-2d9e40deb8be",
+      "name": "Format All Content"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Here is the job posting information:\nCompany Name:  {{ $json.companyName }}\nJob Title: {{ $json.title }}\nLocation: {{ $json.location }}\nJob Posting Description: {{ $json.descriptionText }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an expert LinkedIn and job posting analysis assistant specializing in IT and cybersecurity roles. Your task is to determine whether the provided job posting is suitable for the candidate based on their resume AND their complete skill inventory.\n\nCANDIDATE'S COMPLETE SKILL INVENTORY (MasterSkills):\n{{ JSON.stringify($node[\"Format MasterSkills\"].json[\"MasterSkills\"]) }}\n\nEach category contains skills with:\n- \"skill\": the tool, process, or capability\n- \"level\": basic, intermediate, or advanced proficiency\n- \"evidence\": where the skill was gained (homelab, co-op, college, certification, personal project)\n\nUse this context to accurately assess job fit based on skill depth and experience source.\n\n---\n\nHere is the information from the job posting and company:\n\nCompany Name: \n\nJob Description: {{ $json.descriptionText }}\n\nCandidate Resume: {{ $('Get Main Resume').first().json.content }}\n\n---\n\nINSTRUCTIONS:\n\n1. Assess the suitability of the job posting for the candidate based on:\n   - Skills, tools, and platforms from MasterSkills that match the job requirements\n   - Skill level (basic, intermediate, advanced) relative to what the job needs\n   - Experience context (homelab, co-op, college) and whether it aligns with the role's seniority\n   - Certifications and training relevant to the job\n   - Soft skills and processes that fit the job responsibilities\n\n2. Rate the match on a scale from 0 to 100:\n   - 0 \u2192 Job is completely unsuitable for the candidate\n   - 100 \u2192 Job is extremely suitable for the candidate\n   - Prioritize exact tool/platform matches with appropriate skill levels\n   - Advanced skills with co-op/homelab evidence should rate higher than basic skills\n   - Entry-level/junior roles should match well; senior roles requiring \"5+ years enterprise experience\" should rate lower\n\n3. Provide a short reasoning (2-3 sentences) explaining:\n   - The most important matching skills/tools from MasterSkills and their levels\n   - Any missing critical requirements\n   - Why this rating was assigned\n\n4. ALWAYS GIVE THE RATING AS A NUMBER WITHIN THE RANGE OF 0 TO 100\n\n5. Remove any ```\n\n6. Output MUST be in JSON format and must match the example output format below\n\n***\n\nEXAMPLE OUTPUT FORMAT:\n{\n  \"company_name\": \"string\",\n  \"job_description\": \"string\",\n  \"job_title\": \"string\",\n  \"rating\": number,\n  \"justification\": \"string\"\n}\n\nNow analyze the job posting, resume, and MasterSkills, then output your assessment.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -1616,
+        240
+      ],
+      "id": "ae7e6c79-2be1-46ff-831c-870385589f2d",
+      "name": "Job Analysis Agent",
+      "retryOnFail": true,
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "content": "Analyze the Job Postings and Rate them",
+        "height": 704,
+        "width": 800,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1744,
+        -256
+      ],
+      "typeVersion": 1,
+      "id": "d514199b-556b-4ea7-a146-6813951a0906",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "AI Agents to enhance the Skills, Summary and Experience section of the Resume",
+        "height": 576,
+        "width": 720,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1168,
+        16
+      ],
+      "typeVersion": 1,
+      "id": "218440e7-36d2-4720-857c-86e4715fe1f1",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "53cb366f-42af-4fda-b0b9-9e4908cad581",
+              "name": "Enhanced Resume",
+              "value": "=https://docs.google.com/document/d/{{ $('Copy file').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "e0eb1a08-dfca-4c13-9fa5-0400497e4331",
+              "name": "Company Name",
+              "value": "={{ $('45% or Higher Qualification').item.json.output.comapny_name }}",
+              "type": "string"
+            },
+            {
+              "id": "0e6495af-67bc-451c-a5f3-4e90520508af",
+              "name": "Job Description",
+              "value": "={{ $('45% or Higher Qualification').item.json.output.job_description }}",
+              "type": "string"
+            },
+            {
+              "id": "0ebaee80-e157-42df-a413-526496897b43",
+              "name": "Job Title",
+              "value": "={{ $('45% or Higher Qualification').item.json.output.job_title }}",
+              "type": "string"
+            },
+            {
+              "id": "f55eee1d-305f-44ef-808e-ee44d4ef4eba",
+              "name": "Job Rating",
+              "value": "={{ $('45% or Higher Qualification').item.json.output.rating }}",
+              "type": "string"
+            },
+            {
+              "id": "94c1a391-578e-4f65-88ff-dec033e6d895",
+              "name": "Job ID",
+              "value": "={{ $('Loop Over Items').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "b33a0f01-98a0-4281-96d8-8a26038aa4a3",
+              "name": "Apply URL",
+              "value": "={{ $('Loop Over Items').item.json.applyUrl }}",
+              "type": "string"
+            },
+            {
+              "id": "58c4fd82-cbfc-46bf-9b18-df136fe1ef6d",
+              "name": "Date",
+              "value": "={{ $json.Date }}",
+              "type": "string"
+            },
+            {
+              "id": "2a3e3d04-27cc-45b4-85d8-dfbef9309db5",
+              "name": "Job Link",
+              "value": "={{ $('Loop Over Items').item.json.jobUrl }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        800,
+        848
+      ],
+      "id": "b87885fd-9502-4eb6-8b33-3ca63ffdf92e",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1AGBPD3DkMJ1IhhtPnKzGJQBxqUPtnGXzsNnx-sPrRBs",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Master",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_DOCUMENT_ID/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Company Name": "={{ $json['Company Name'] }}",
+            "Job Title": "={{ $json['Job Title'] }}",
+            "Date": "={{ $json.Date }}",
+            "Job Description": "={{ $json['Job Description'] }}",
+            "Job Rating": "={{ $json['Job Rating'] }}",
+            "Enhanced Resume URL": "={{ $json['Enhanced Resume'] }}",
+            "Apply URL": "={{ $json[\"Apply URL\"] }}",
+            "Job Link": "={{ $json[\"Job Link\"] }}",
+            "Job ID": "={{ $json['Job ID'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company Name",
+              "displayName": "Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Job Title",
+              "displayName": "Job Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Job Description",
+              "displayName": "Job Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Job Rating",
+              "displayName": "Job Rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Job ID",
+              "displayName": "Job ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Job Link",
+              "displayName": "Job Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Apply URL",
+              "displayName": "Apply URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Enhanced Resume URL",
+              "displayName": "Enhanced Resume URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1456,
+        848
+      ],
+      "id": "2a8ed230-2255-4d51-80f3-e12f28649c69",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Your googleSheetsOAuth2Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "formatDate",
+        "date": "={{ $now }}",
+        "format": "MMMM dd yyyy",
+        "outputFieldName": "Date",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        336,
+        848
+      ],
+      "id": "e9107e24-0371-496f-84ac-ab69acb70c4f",
+      "name": "Date & Time"
+    },
+    {
+      "parameters": {
+        "content": "Final Steps",
+        "height": 240,
+        "width": 1056,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -896,
+        784
+      ],
+      "typeVersion": 1,
+      "id": "7cb9d86b-462d-45ad-a061-56aa044ac1be",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2816,
+        -736
+      ],
+      "id": "902f1fe0-5844-44d1-b010-63f9fd104a06",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1216,
+        400
+      ],
+      "id": "9dca6ef2-1600-4f48-a808-8130e359a070",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Your openAiApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "Word ",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Create Daily Job Postings Folder').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        368,
+        -448
+      ],
+      "id": "3036e388-a724-4873-a52b-8a459c442978",
+      "name": "Create Word Folder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $now.format('dd LLL yyyy') }} Applications",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1oPxGRL47lnUPFBIYdjG8bETbZFbPCjKd",
+          "mode": "list",
+          "cachedResultName": "Cybersecurity Jobs",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/YOUR_DOCUMENT_ID"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -32,
+        -464
+      ],
+      "id": "7e65c048-1bc8-4c76-8734-061ff9cc0d73",
+      "name": "Create Daily Job Postings Folder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "PDF",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Create Daily Job Postings Folder').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        176,
+        -464
+      ],
+      "id": "d202f4f7-1254-4df9-aac8-b356964d77d2",
+      "name": "Create PDF Folder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.documentId }}",
+          "mode": "id"
+        },
+        "options": {
+          "binaryPropertyName": "Enhanced_Resume_PDF",
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -384,
+        848
+      ],
+      "id": "12132a98-637d-4af3-b579-4a7563e7421e",
+      "name": "Download Enhanced Resume (WORD)",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "Enhanced_Resume_PDF",
+        "name": "={{ $('Copy file').item.json.name }}.pdf",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ \n  $items(\"Search PDF Folder in Daily Postings\")[0]?.json.id  ||\n  $items(\"Create PDF Folder\")[0]?.json.id  \n}}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -64,
+        848
+      ],
+      "id": "cdefcf06-fe25-4084-84cc-db9a50b7eb97",
+      "name": "Upload Enhanced Resume (PDF)",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "={{  $now.format('dd LLL yyyy') }} Applications",
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "1oPxGRL47lnUPFBIYdjG8bETbZFbPCjKd",
+            "mode": "list",
+            "cachedResultName": "Cybersecurity Jobs",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/YOUR_DOCUMENT_ID"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -496,
+        -128
+      ],
+      "id": "e58d328c-169d-460b-8a8e-daebe5e2936a",
+      "name": "Search Daily Applications Folder",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ba039b5e-53c0-4090-ae19-d1d249a38b64",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -272,
+        -128
+      ],
+      "id": "b46141ed-f36d-49a6-bcab-49074078cb4e",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "Word",
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "={{ $('Search Daily Applications Folder').item.json.id }}",
+            "mode": "id"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        336,
+        -192
+      ],
+      "id": "01397299-544c-45aa-9443-840f163026cb",
+      "name": "Search Word Folder in Daily Postings",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "PDF",
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "={{ $('Search Daily Applications Folder').item.json.id }}",
+            "mode": "id"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        64,
+        -144
+      ],
+      "id": "871edf37-c32c-4f75-8b1d-7ae13efa4982",
+      "name": "Search PDF Folder in Daily Postings",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = items.map(item => item.json);\nconst skills = {};\n\nrows.forEach(r => {\n  if (!skills[r.Category]) skills[r.Category] = [];\n  skills[r.Category].push({\n    skill: r.Skill,\n    level: r.Level,\n    evidence: r.Evidence\n  });\n});\n\nreturn [{\n  json: {\n    MasterSkills: Object.keys(skills).map(cat => ({\n      category: cat,\n      items: skills[cat]\n    }))\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        -768
+      ],
+      "id": "97569e55-80a9-48a9-8dcd-2691274bb249",
+      "name": "Format MasterSkills"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1296,
+        176
+      ],
+      "id": "df70c853-8752-4c95-9d42-6050c8bbe032",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Your googlePalmApi account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1DjAzIjuoQwmgKKXO4enUyAUIk7zWtcucl-6_q1rWsbs",
+          "mode": "list",
+          "cachedResultName": "Skills",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_DOCUMENT_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "MasterSkills",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_DOCUMENT_ID/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        80,
+        -768
+      ],
+      "id": "db1e48d8-5b19-4756-ac7f-b6bf4217a279",
+      "name": "Get Skills",
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Your googleSheetsOAuth2Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1AGBPD3DkMJ1IhhtPnKzGJQBxqUPtnGXzsNnx-sPrRBs",
+          "mode": "list",
+          "cachedResultName": "Job Applications Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_DOCUMENT_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 313748098,
+          "mode": "list",
+          "cachedResultName": "Unwanted Jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_DOCUMENT_ID/edit#gid=313748098"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Job ID": "={{ $('Loop Over Items').item.json.id }}",
+            "Date": "={{ $now.format('yyyy-MM-dd') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Job ID",
+              "displayName": "Job ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -480,
+        352
+      ],
+      "id": "6ac173e9-d51c-4f6c-a767-00efd50c6400",
+      "name": "Add to Unwanted Jobs sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Your googleSheetsOAuth2Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1AGBPD3DkMJ1IhhtPnKzGJQBxqUPtnGXzsNnx-sPrRBs",
+          "mode": "list",
+          "cachedResultName": "Job Applications Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_DOCUMENT_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 313748098,
+          "mode": "list",
+          "cachedResultName": "Unwanted Jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_DOCUMENT_ID/edit#gid=313748098"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -208,
+        -768
+      ],
+      "id": "dadafe64-3ecd-43d6-94b7-a0c92143fc34",
+      "name": "Get Negative Job IDs",
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Your googleSheetsOAuth2Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1AGBPD3DkMJ1IhhtPnKzGJQBxqUPtnGXzsNnx-sPrRBs",
+          "mode": "list",
+          "cachedResultName": "Job Applications Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_DOCUMENT_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Master",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_DOCUMENT_ID/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -448,
+        -768
+      ],
+      "id": "992c2a9c-9bc8-4c30-b4e2-c275efd0447a",
+      "name": "Get Positive Job IDs",
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Your googleSheetsOAuth2Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1) Collect existing IDs from positive + negative sheets\n\nconst positiveItems = $items('Get Positive Job IDs');   // Master\nconst negativeItems = $items('Get Negative Job IDs');   // Unwanted\n\nconst positiveIds = positiveItems.map(i => String(i.json['Job ID']));\nconst negativeIds = negativeItems.map(i => String(i.json['Job ID']));\n\n// Merge into one Set for fast lookup\nconst skipIds = new Set([...positiveIds, ...negativeIds]);\n\n// 2) New jobs from scraper (HTTP Request node)\n\nconst scrapedItems = $items('HTTP Request');   // jobs returned by API\nconst scrapedJobs = scrapedItems.map(i => i.json);\n\n// 3) Keep only jobs whose ID is NOT in skipIds\n\nconst uniqueJobs = scrapedJobs.filter(job =>\n  !skipIds.has(String(job.id || job['Job ID']))\n);\n\nconsole.log('Skip IDs:', skipIds.size);\nconsole.log('Scraped:', scrapedJobs.length);\nconsole.log('Unique:', uniqueJobs.length);\n\n// 4) Output unique jobs to the loop\n\nreturn uniqueJobs.map(job => ({ json: job }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1184,
+        -736
+      ],
+      "id": "4bd67a09-4e34-4a47-81d6-fa75b35e54ce",
+      "name": "Check for Duplicates",
+      "alwaysOutputData": true
+    }
+  ],
+  "connections": {
+    "When clicking \u2018Execute workflow\u2019": {
+      "main": [
+        [
+          {
+            "node": "Get N8N Draft Resume",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Check for Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Job Analysis Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "Job Analysis Agent",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "Summary & Skills Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Job Analysis Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "45% or Higher Qualification": {
+      "main": [
+        [
+          {
+            "node": "Search Daily Applications Folder",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add to Unwanted Jobs sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Summary & Skills Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Main Resume": {
+      "main": [
+        [
+          {
+            "node": "Get Positive Job IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get N8N Draft Resume": {
+      "main": [
+        [
+          {
+            "node": "Get Main Resume",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copy file": {
+      "main": [
+        [
+          {
+            "node": "Summary & Skills Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summary & Skills Agent": {
+      "main": [
+        [
+          {
+            "node": "Format All Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format All Content": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Analysis Agent": {
+      "main": [
+        [
+          {
+            "node": "45% or Higher Qualification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document": {
+      "main": [
+        [
+          {
+            "node": "Download Enhanced Resume (WORD)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Job Analysis Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summary & Skills Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Word Folder": {
+      "main": [
+        [
+          {
+            "node": "Copy file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Daily Job Postings Folder": {
+      "main": [
+        [
+          {
+            "node": "Create PDF Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create PDF Folder": {
+      "main": [
+        [
+          {
+            "node": "Create Word Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Enhanced Resume (WORD)": {
+      "main": [
+        [
+          {
+            "node": "Upload Enhanced Resume (PDF)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Enhanced Resume (PDF)": {
+      "main": [
+        [
+          {
+            "node": "Date & Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Daily Applications Folder": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Create Daily Job Postings Folder",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Search PDF Folder in Daily Postings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Word Folder in Daily Postings": {
+      "main": [
+        [
+          {
+            "node": "Copy file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search PDF Folder in Daily Postings": {
+      "main": [
+        [
+          {
+            "node": "Search Word Folder in Daily Postings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format MasterSkills": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Get Skills": {
+      "main": [
+        [
+          {
+            "node": "Format MasterSkills",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add to Unwanted Jobs sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Negative Job IDs": {
+      "main": [
+        [
+          {
+            "node": "Get Skills",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Positive Job IDs": {
+      "main": [
+        [
+          {
+            "node": "Get Negative Job IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "164d8404-5590-4f84-8cce-3094c706ee21",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b84964527d8316aa4af7915c50949aea2731ba4ee821a27bb104a5b49c9e590e"
+  },
+  "id": "6t0GHJd1XBvGWexw",
+  "tags": []
+}
