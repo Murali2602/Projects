@@ -21,7 +21,7 @@ This automation processes 40-50 cybersecurity job postings daily, scoring each p
 
 ## Architecture
 
-![N8N Job Automation Overview](<img width="1000" height="488" alt="image" src="https://github.com/user-attachments/assets/d1bda91b-ff5c-44c5-99df-f1110b6c9f8c" />)
+![N8N Job Automation Overview](https://github.com/user-attachments/assets/d1bda91b-ff5c-44c5-99df-f1110b6c9f8c)
 
 ## 🛠️ Tech Stack
 
