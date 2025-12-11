@@ -3,12 +3,16 @@
 An intelligent N8N workflow that automates cybersecurity job hunting by scraping LinkedIn postings, analyzing job fit with AI, and generating tailored resumes for qualified opportunities.
 
 ![Workflow Status](https://img.shields.io/badge/status-active-success.svg)
-![N8N](https://img.shields.io/badge/n8n-workflow-orange.svg)
+![N8N](https://img.shields.io/badge/n8n-v2.0.0-orange.svg)
 [![Blog Post](https://img.shields.io/badge/Blog%20Post-Ghost%20CMS-15171A?logo=ghost&logoColor=white)](https://ezynix.com/projects/n8n-job-automation/)
 
 ## Overview
 
 This automation processes 40-50 cybersecurity job postings daily, scoring each position based on skills match and automatically generating customized resumes for qualified roles (65%+ match). What used to take 2-3 hours of manual work now runs in 5-10 minutes.
+
+**Blog Post** - [Read Blog Post](https://ezynix.com/projects/n8n-job-automation/)
+
+---
 
 ### Key Features
 
@@ -21,14 +25,14 @@ This automation processes 40-50 cybersecurity job postings daily, scoring each p
 
 ## Architecture
 
-![N8N Job Automation Overview](https://github.com/user-attachments/assets/d1bda91b-ff5c-44c5-99df-f1110b6c9f8c)
+![N8N Job Automation Overview](N8N-Automation-Overview.png)
 
 ## 🛠️ Tech Stack
 
 - **Workflow Engine**: N8N (self-hosted)
 - **AI Models**: 
-  - Google Gemini 1.5 (Job Analysis)
-  - OpenAI GPT-4o-mini (Resume Optimization)
+  - Google Gemini 3.5 (Job Analysis)
+  - OpenAI GPT-5o-mini (Resume Optimization)
 - **Integrations**:
   - Google Docs API
   - Google Drive API
@@ -38,13 +42,10 @@ This automation processes 40-50 cybersecurity job postings daily, scoring each p
 
 ## 📦 What's Included
 
-- `n8n-job-automation-workflow-sanitized.json` - Complete N8N workflow (import-ready)
+- `n8n-job-automation-workflow.json` - Complete N8N workflow (import-ready)
 - `README.md` - This file
-- `prompts/` - Directory containing full AI agent prompts
-  - `job-analysis-prompt.md` - Job matching system prompt
-  - `resume-optimization-prompt.md` - Resume tailoring system prompt
-- `schemas/` - JSON output schemas for structured parsing
-- `docs/` - Additional documentation and setup guides
+- `job-analysis-prompt.txt` - Job matching system prompt
+- `resume-optimization-prompt.txt` - Resume tailoring system prompt
 
 ## 🚀 Setup Instructions
 
@@ -73,7 +74,7 @@ This automation processes 40-50 cybersecurity job postings daily, scoring each p
 1. **Import Workflow**
    - Open N8N
    - Go to Workflows → Import from File
-   - Select `n8n-job-automation-workflow-sanitized.json`
+   - Select `n8n-job-automation-workflow.json`
 
 2. **Configure Credentials**
    - Add Google Docs OAuth2 credentials
@@ -153,8 +154,6 @@ Parameters:
 
 ## 🧠 AI Agent Prompts
 
-The full system prompts are available in the `prompts/` directory. Key features:
-
 ### Job Analysis Agent
 - Compares job requirements against MasterSkills inventory
 - Considers skill proficiency levels (basic/intermediate/advanced)
@@ -168,6 +167,8 @@ The full system prompts are available in the `prompts/` directory. Key features:
 - Maintains authenticity (only includes verified skills)
 - Uses accurate experience attribution (homelab/co-op/college)
 
+
+
 ## 📊 Output Examples
 
 ### Google Sheets Tracker
@@ -175,6 +176,8 @@ The full system prompts are available in the `prompts/` directory. Key features:
 |------|--------------|-----------|--------|-----------------|-----------|--------|
 | 2025-12-10 | Acme Corp | Security Analyst | 78 | [Doc Link] | [Apply] | Ready |
 | 2025-12-10 | Tech Inc | SOC Analyst | 82 | [Doc Link] | [Apply] | Applied |
+
+---
 
 ### Generated Resume Structure
 ```
@@ -241,13 +244,6 @@ Skills (dynamic categories)
 - No third-party data sharing
 - Resume data never leaves your infrastructure
 - LinkedIn scraper should respect robots.txt and rate limits
----
-
-## 🔗 Related Projects
-
-- **LinkedIn Scraper** - [Coming soon] Puppeteer-based job scraper
-- **Portfolio Post** - [Read Blog Post](https://ezynix.com/projects/n8n-job-automation/)
-
 ---
 
 **⚠️ Disclaimer**: This tool is for personal use. Ensure compliance with LinkedIn's Terms of Service and use rate limiting to avoid account restrictions. The author is not responsible for any misuse.
