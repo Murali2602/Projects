@@ -31,7 +31,7 @@ This automation processes 40-50 cybersecurity job postings daily, scoring each p
 ## Tech Stack
 
 - **Workflow Engine**: N8N (self-hosted)
-- **AI Model**: OpenAI ChatGPT (GPT-4o / GPT-4o-mini)
+- **AI Model**: OpenAI ChatGPT (GPT-5 / GPT-5-mini)
   - Job Analysis Agent with JSON Schema output
   - Resume Optimization Agent with structured formatting
 - **Integrations**:
@@ -155,8 +155,8 @@ In the `45% or Higher Qualification` node:
 ### Switching ChatGPT Models
 
 Update the OpenAI Chat Model node:
-- **GPT-4o**: Best accuracy, higher cost (~$0.20/100 jobs)
-- **GPT-4o-mini**: Balanced performance, lower cost (~$0.15/100 jobs) ← Recommended
+- **GPT-5**: Best accuracy, higher cost (~$0.20/100 jobs)
+- **GPT-5-mini**: Balanced performance, lower cost (~$0.15/100 jobs) ← Recommended
 - **GPT-3.5-turbo**: Fastest, cheapest, but less reliable for complex prompts
 
 ### Search Parameters
@@ -258,7 +258,7 @@ Skills (dynamic categories)
 
 **Execution Time**: 10-20 minutes for 40-50 jobs
 
-**API Costs** (approximate per run with GPT-4o-mini):
+**API Costs** (approximate per run with GPT-5-mini):
 - OpenAI ChatGPT: ~$0.15 per 100 jobs (both agents combined)
   - Job Analysis: ~$0.04
   - Resume Generation: ~$0.11
