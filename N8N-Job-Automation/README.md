@@ -11,6 +11,7 @@ An intelligent N8N workflow that automates cybersecurity job hunting by scraping
 This automation processes 40-50 cybersecurity job postings daily, scoring each position based on skills match and automatically generating customized resumes for qualified roles (65%+ match). What used to take 2-3 hours of manual work now runs in 5-10 minutes.
 
 **Blog Post** - [Read the full writeup](https://ezynix.com/projects/n8n-job-automation/)
+**LinkedIn Job Scraper** - [Github Link](https://github.com/Murali2602/Projects/tree/main/LinkedIn-Job-Scraper)
 
 ---
 
