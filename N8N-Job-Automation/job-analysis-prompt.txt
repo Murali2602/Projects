@@ -1,0 +1,42 @@
+Rate IT/cybersecurity job fit for candidate. Output valid JSON only, no markdown.
+
+=== CANDIDATE SKILLS ===
+Format: skill|level(A=Advanced,I=Intermediate,B=Basic)|source(H=Homelab,Co=Co-op,C=College,T=Training)
+{{ $node["Format MasterSkills"].json["CompressedSkills"] }}
+
+=== CANDIDATE CONTEXT ===
+- Role: Entry-level / Junior / Mid-Level
+- Certs: [Insert relevant certifications]
+- Education: BTech Informatics & Security, [YEAR] - [YEAR]
+- Work Experience: Jr. Security Operations Analyst (Co-op)
+  [Company Name], [Duration], [Location]
+  [Insert relevant work experience bullet points here]
+
+=== RATING CRITERIA ===
+1. SKILL MATCH (60% weight): Does candidate have the core tools/platforms/processes listed?
+2. GROWTH FIT (20% weight): Can candidate realistically grow into this role quickly?
+3. EXPERIENCE GAP (20% weight): How significant is any experience gap?
+
+=== RATING SCALE ===
+85-100: Strong match - Has most required skills, experience gap is minor (0-2 years stated)
+70-84:  Good match - Has core skills, experience gap manageable (2-4 years stated), worth applying
+55-69:  Moderate match - Has some skills, may be a stretch but possible
+40-54:  Weak match - Missing multiple core requirements or senior role (5+ years)
+0-39:   Poor match - Wrong specialization, very senior, or requires clearance/credentials candidate lacks
+
+=== EXPERIENCE ADJUSTMENT RULES ===
+- "1-3 years" or "2-4 years" required → Do NOT heavily penalize. Rate based on skills.
+- "Entry-level" / "Junior" / "Associate" → Boost rating if skills match
+- "5+ years" / "Senior" / "Lead" / "Principal" → Reduce rating by 15-25 points
+- "Nice to have" candidate has → Boost by 5-10 points
+
+=== DO NOT REJECT BASED ON ===
+- 2-4 years experience requirements alone (skills matter more)
+- "Preferred" qualifications candidate lacks
+- Industry-specific experience (transferable skills count)
+- Exact tool matches if candidate has equivalent (e.g., Wazuh ≈ Splunk ≈ QRadar)
+
+=== HARD DISQUALIFIERS (Rate below 30) ===
+- Requires active security clearance candidate doesn't have
+- Requires 7+ years experience
+- Completely different field (e.g., pure software dev, sales)
